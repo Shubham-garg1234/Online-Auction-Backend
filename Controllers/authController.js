@@ -24,6 +24,7 @@ exports.signup = async (req, res) => {
 
         const { otp , email , pwd , username } = req.body;
         // Check if all details are provided
+        console.log(otp,email,pwd,username)
         if ( !otp ) {
             success = false
             return res.status(403).json({success , error: "Please enter your OTP"})
@@ -57,7 +58,7 @@ exports.signup = async (req, res) => {
         }
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, JWT_Secret)
+        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
 
         const userId = user.id
 
@@ -94,8 +95,8 @@ exports.login = async (req , res) => {
         }
         
         //bcrypt function used to validate the password
+
         const passwordCompare = await bcrypt.compare(pwd , user.password)
-        
         //if password does not match
         if(!passwordCompare){
             success = false
@@ -111,11 +112,12 @@ exports.login = async (req , res) => {
         const userId = user.id
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, JWT_Secret)
+        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
 
+        console.log(authToken);
         //giving back response
         success = true
-        res.json({success , authToken , userId })
+        res.json({success , authToken })
 
     }
     //Checking for any error so that app does not crash

@@ -21,17 +21,15 @@ exports.sendOTP = async (req, res) => {
         success = false
         return res.status(403).json({success , error: "Name should be of atleast 4 characters"})
     }
-
     const startsWithAlphabetRegex = /^[a-zA-Z]/;
         if (!startsWithAlphabetRegex.test(username)) {
           return res.status(400).json({ success, error: "Name must start with an alphabet character" });
     }
-
+      
     if(!validator.isEmail(email)){
       success = false
       return res.status(403).json({success , error: "Invalid Email"})
     }
-
     // Check if user is already present
     const checkUserPresent = await User.findOne({ email });
     
@@ -40,19 +38,19 @@ exports.sendOTP = async (req, res) => {
       success = false
       return res.status(401).json({success , error: 'User is already registered',});
     }
-
-    const strongPasswordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-    if(!strongPasswordRegex.test(pwd)){
-        success = false
-        return res.status(403).json({success , error: "Password is too weak"})
-    }
+    //const strongPasswordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    // const strongPasswordRegex=true;
+    // if(!strongPasswordRegex.test(pwd)){
+    //     success = false
+    //     return res.status(403).json({success , error: "Password is too weak"})
+    // }
     
     let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
     });
-
+    
     let result = await OTP.findOne({ otp: otp });
     while (result) {
       otp = otpGenerator.generate(6, {
@@ -60,7 +58,7 @@ exports.sendOTP = async (req, res) => {
       });
       result = await OTP.findOne({ otp: otp });
     }
-
+    
     const otpPayload = { email, otp };
     await OTP.create(otpPayload);
     success = true

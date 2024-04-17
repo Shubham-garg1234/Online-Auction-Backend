@@ -1,10 +1,9 @@
-require("dotenv").config()
 const validator = require('validator')
 const User = require('../Models/userModel')
 const OTP = require('../Models/otpModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const JWT_Secret = process.env.JWT_SECRET
+const otpGenerator = require('otp-generator')
 
 
 exports.forgotPass = async (req, res) => {
@@ -48,48 +47,19 @@ exports.forgotPass = async (req, res) => {
 };
 
 
-
-exports.resetPass = async (req, res) => {
-    let success = false;
-    try {
-        const { email, nPassword } = req.body;
-
-        const user = await User.findOne({ email: email });
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(nPassword, salt);
-
-        user.password = hashedPassword;
-        await user.save();
-
-        const data = {
-            user:{
-                id: user.id
-            }
-        }
-
-        //Generating a JWT token
-        var authToken = jwt.sign(data, JWT_Secret)
-
-        success = true;
-        return res.status(200).json({ success, authToken , message: 'Password reset successful' });
-
-    }catch (error) {
-        console.error(error);
-        return res.status(400).json({ success, error: "Error while reseting the password" });
-    }
-};
-
-
-
 exports.verifyOtp = async(req , res) => {
     let success = false
     try{
-       const { otp } = req.body;
-       // Check if all details are provided
-       if ( !otp ) {
+       const { email , otp } = req.body;
+
+        if ( !email || !otp ) {
             success = false
-            return res.status(403).json({success , error: "Please enter your OTP"})
+            return res.status(403).json({success , error: "Please provide all the fields"})
+        }
+
+         // Check if all details are provided
+        if(!validator.isEmail(email)){
+            return res.status(403).json({success , error: "Invalid Email"})
         }
         
         const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
@@ -107,3 +77,45 @@ exports.verifyOtp = async(req , res) => {
     }
 }
 
+
+
+exports.resetPass = async (req, res) => {
+    let success = false;
+    try {
+        const { email, pwd } = req.body;
+
+        if ( !email || !pwd ) {
+            success = false
+            return res.status(403).json({success , error: "All fields are required"})
+        }
+
+        // Check if all details are provided
+        if(!validator.isEmail(email)){
+            return res.status(403).json({success , error: "Invalid Email"})
+        }
+
+        const user = await User.findOne({ email: email });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(pwd, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        const data = {
+            user:{
+                id: user.id
+            }
+        }
+
+        //Generating a JWT token
+        var authToken = jwt.sign(data, "jsbgskb", { expiresIn: '10h' })
+
+        success = true;
+        return res.status(200).json({ success, authToken , message: 'Password reset successful' });
+
+    }catch (error) {
+        console.error(error);
+        return res.status(400).json({ success, error: "Error while reseting the password" });
+    }
+};

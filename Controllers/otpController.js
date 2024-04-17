@@ -26,6 +26,7 @@ exports.sendOTP = async (req, res) => {
           return res.status(400).json({ success, error: "Name must start with an alphabet character" });
     }
       
+      
     if(!validator.isEmail(email)){
       success = false
       return res.status(403).json({success , error: "Invalid Email"})
@@ -51,6 +52,7 @@ exports.sendOTP = async (req, res) => {
       specialChars: false,
     });
     
+    
     let result = await OTP.findOne({ otp: otp });
     while (result) {
       otp = otpGenerator.generate(6, {
@@ -58,6 +60,7 @@ exports.sendOTP = async (req, res) => {
       });
       result = await OTP.findOne({ otp: otp });
     }
+    
     
     const otpPayload = { email, otp };
     await OTP.create(otpPayload);

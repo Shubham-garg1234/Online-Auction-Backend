@@ -5,6 +5,7 @@ const mailSender = require('../utils/mailSender')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const otpGenerator = require('otp-generator')
+const OTP = require('../Models/otpModel')
 
 
 exports.forgotPass = async (req, res) => {

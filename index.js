@@ -20,7 +20,7 @@ app.use(cors())
 //Available routes whose api can be hit
 app.use('/api/auth' , require('./Routes/authRoutes'));
 app.use('/api/auth' , require('./Routes/otpRoutes'));
-// app.use('/api/auth' , require('./Routes/resetRoutes'));
+app.use('/api/auth' , require('./Routes/resetRoutes'));
 
 
 //Starting a server at port 3001

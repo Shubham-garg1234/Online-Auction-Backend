@@ -1,8 +1,7 @@
 require("dotenv").config()
 const validator = require('validator')
 const User = require('../Models/userModel')
-const crypto = require('crypto')
-const mailSender = require('../utils/mailSender')
+const OTP = require('../Models/otpModel')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const JWT_Secret = process.env.JWT_SECRET
@@ -20,24 +19,27 @@ exports.forgotPass = async (req, res) => {
         const user = await User.findOne({ email });
         
         if (!user) {
-          return res.status(404).json({success , error: 'User not found',});
+          return res.status(404).json({success , error: 'User not found'});
         }
   
-        // Generate a reset token
-        const resetToken = crypto.randomBytes(20).toString('hex');
-        user.resetToken = resetToken;
-        user.resetTokenExpiration = Date.now() + 3600000; // Token expires in 1 hour
-        const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-window/${resetToken}`;
-        await user.save();
-        const mailResponse = await mailSender(
-          email,
-          "Password Reset Link",
-          `<h1>Please click on the link below to change your password. If its not you, then ignore</h1>
-           <p>${resetUrl}</p>`
-        );
-        console.log("Email sent successfully: ", mailResponse.response);
+        let otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          lowerCaseAlphabets: false,
+          specialChars: false,
+        });
+      
+        let result = await OTP.findOne({ otp: otp });
+        while (result) {
+          otp = otpGenerator.generate(6, {
+            upperCaseAlphabets: false,
+          });
+          result = await OTP.findOne({ otp: otp });
+        }
+      
+        const otpPayload = { email, otp };
+        await OTP.create(otpPayload);
         success = true
-        res.status(200).json({success , resetToken , message: 'Password reset token sent' });
+        res.status(200).json({success , message: 'OTP Sent Successfully' });
   
     } catch (error) {
         console.log(error.message);
@@ -50,28 +52,14 @@ exports.forgotPass = async (req, res) => {
 exports.resetPass = async (req, res) => {
     let success = false;
     try {
-        const { nPassword, cPassword } = req.body;
-        const resetToken = req.params.token;
+        const { email, nPassword } = req.body;
 
-        if (nPassword !== cPassword) {
-            return res.status(400).json({ success, error: 'Both Passwords do not match' });
-        }
-
-        const user = await User.findOne({
-            resetToken,
-            resetTokenExpiration: { $gt: Date.now() },
-        });
-
-        if (!user) {
-            return res.status(401).json({ success, error: 'Invalid or expired reset token' });
-        }
+        const user = await User.findOne({ email: email });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(nPassword, salt);
 
         user.password = hashedPassword;
-        user.resetToken = undefined;
-        user.resetTokenExpiration = undefined;
         await user.save();
 
         const data = {
@@ -82,12 +70,9 @@ exports.resetPass = async (req, res) => {
 
         //Generating a JWT token
         var authToken = jwt.sign(data, JWT_Secret)
-        const newNotifications = user.newNotifications
-
-        const userId = user.id
 
         success = true;
-        return res.status(200).json({ success, authToken, userId , message: 'Password reset successful' , newNotifications });
+        return res.status(200).json({ success, authToken , message: 'Password reset successful' });
 
     }catch (error) {
         console.error(error);
@@ -97,15 +82,28 @@ exports.resetPass = async (req, res) => {
 
 
 
-exports.showResetWindow = async(req , res) => {
+exports.verifyOtp = async(req , res) => {
     let success = false
     try{
-        const token = req.params.token
-        res.redirect(`http://localhost:3001/resetWindow/${token}`)
+       const { otp } = req.body;
+       // Check if all details are provided
+       if ( !otp ) {
+            success = false
+            return res.status(403).json({success , error: "Please enter your OTP"})
+        }
+        
+        const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+        if (response.length === 0 || otp !== response[0].otp) {
+            success = false
+            return res.status(400).json({success , error: "The OTP is not valid"})
+        }
+
+        success = true;
+        res.status(200).json({success , message: "OTP verified successfully"})
     }
     catch(error){
         console.error(error)
-        return res.status(400).json({success , error: "Error while opening link"})
+        return res.status(400).json({success , error: "Error while verifying otp"})
     }
 }
 

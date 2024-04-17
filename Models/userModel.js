@@ -18,6 +18,9 @@ const userSchema = new Schema({
         type: String,
         default: ''
     },
+    coins: {
+        type: Number,
+    }
 });
 
 

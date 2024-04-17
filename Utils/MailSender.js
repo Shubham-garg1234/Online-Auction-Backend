@@ -13,8 +13,8 @@ const mailSender = async (email, title, body) => {
       port: 507,
       secure: false,
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS
+        user: "test8619030@gmail.com",
+        pass: "avbh hzyk odpa ouxk"
       }
     });
     // Send emails to users

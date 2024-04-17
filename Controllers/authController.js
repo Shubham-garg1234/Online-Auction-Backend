@@ -22,8 +22,9 @@ exports.signup = async (req, res) => {
     let success;
     try{
 
-        const { otp , email , password , name } = req.body;
+        const { otp , email , pwd , username } = req.body;
         // Check if all details are provided
+        console.log(otp,email,pwd,username)
         if ( !otp ) {
             success = false
             return res.status(403).json({success , error: "Please enter your OTP"})
@@ -39,11 +40,11 @@ exports.signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
 
         //Hashing a password
-        const secPass = await bcrypt.hash(password , salt);
+        const secPass = await bcrypt.hash(pwd , salt);
 
         //Creating a user
         let user = await User.create({
-            name: name,
+            name: username,
             email: email,
             password: secPass
         })
@@ -76,9 +77,9 @@ exports.signup = async (req, res) => {
 exports.login = async (req , res) => {
     let success;
     try{
-        const { email , password } = req.body;
+        const { email , pwd } = req.body;
         // Check if all details are provided
-        if ( !email || !password ) {
+        if ( !email || !pwd ) {
             success = false
             return res.status(403).json({success , error: "All fields are required"})
         }
@@ -93,8 +94,8 @@ exports.login = async (req , res) => {
         }
         
         //bcrypt function used to validate the password
-        const passwordCompare = await bcrypt.compare(password , user.password)
-        
+
+        const passwordCompare = await bcrypt.compare(pwd , user.password)
         //if password does not match
         if(!passwordCompare){
             success = false
@@ -110,11 +111,12 @@ exports.login = async (req , res) => {
         const userId = user.id
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, JWT_Secret)
+        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
 
+        console.log(authToken);
         //giving back response
         success = true
-        res.json({success , authToken , userId })
+        res.json({success , authToken })
 
     }
     //Checking for any error so that app does not crash

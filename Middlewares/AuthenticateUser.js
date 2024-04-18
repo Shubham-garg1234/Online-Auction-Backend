@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken')
 
 //creating a middleware function which is designed to perform some function
 const fetchuser = (req , res , next) => {
-    
     let success = false
 
     //storing token present in the auth-token header in thunderclient

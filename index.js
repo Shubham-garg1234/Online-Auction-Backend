@@ -21,6 +21,7 @@ app.use(cors())
 app.use('/api/auth' , require('./Routes/authRoutes'));
 app.use('/api/auth' , require('./Routes/otpRoutes'));
 app.use('/api/auth' , require('./Routes/resetRoutes'));
+app.use('/api/auth',require('./Routes/homeRoutes'))
 
 
 //Starting a server at port 3001

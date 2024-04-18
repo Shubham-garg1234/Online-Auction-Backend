@@ -3,11 +3,12 @@ const User = require('../Models/userModel')
 
 exports.getdetails = async (req, res) => {
     try {
-        
+
       const user = await User.findById(req.user.id);
   
       if (user) {
-        return res.status(200).json(user);
+        console.log(user);
+        return res.status(200).json({user});
       } else {
         return res.status(404).json({ error: 'User not found' });
       }

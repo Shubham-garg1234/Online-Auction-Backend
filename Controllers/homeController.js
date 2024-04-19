@@ -99,3 +99,28 @@ exports.uploaditems = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+exports.getUpcoming = async(req,res) =>{
+  try{
+    const upcomingAuctions = await Auction.find({ $or: [{ status: 'upcoming' }, { status: 'live' }] });
+    return res.status(200).json({ auctions: upcomingAuctions });
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({ error: error.message });
+  }
+}
+
+exports.getItemsDetails=async(req,res)=>{
+  try{
+    itemIds=req.body.itemsArray;
+    const itemsDetails = await Item.find({ _id: { $in: itemIds } }).select('-sellerId');;
+    if (itemsDetails.length === 0) {
+      return res.status(404).json({ message: 'No items found' });
+    }
+    return res.status(200).json({ items: itemsDetails });
+
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({ error: error.message });
+  } 
+}

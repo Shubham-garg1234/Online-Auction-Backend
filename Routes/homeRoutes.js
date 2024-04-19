@@ -6,5 +6,7 @@ const AuthenticateUser = require('../Middlewares/AuthenticateUser')
 
 router.post('/getdetails', AuthenticateUser , homeController.getdetails);
 router.post('/uploaditems', AuthenticateUser , homeController.uploaditems);
+router.post('/getUpcoming', AuthenticateUser , homeController.getUpcoming);
+router.post('/getItemsDetails',AuthenticateUser,homeController.getItemsDetails);
 
 module.exports = router;

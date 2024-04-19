@@ -1,6 +1,8 @@
 
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
+const Auction = require('../Models/auctionModel')
+const formatDate = require('../Utils/FormatDate')
 
 exports.getdetails = async (req, res) => {
     try {
@@ -39,6 +41,41 @@ exports.uploaditems = async (req, res) => {
     user.coins -= coinsRequired;
     await user.save();
 
+    let selectedAuction = null;
+
+    const auctions = await Auction.find().sort({ starting_time: -1 })
+
+    if(auctions.length == 0){
+
+      let startingTime = new Date();
+      startingTime.setDate(startingTime.getDate() + 1);
+      startingTime.setHours(12, 0, 0, 0);
+
+      selectedAuction = await Auction.create({
+        name: "Auction 1",
+        starting_time: startingTime,
+        status: 'upcoming',
+        number: 1,
+      })
+    }
+    else{
+      if(auctions[0].items.length === 15){
+        const newAuctionName = 'Auction ' + (auctions[0].number + 1);
+        const newAuctionStartingTime = new Date(auctions[0].starting_time.getTime() + 60 * 60 * 1000);
+        selectedAuction = await Auction.create({
+          name: newAuctionName,
+          starting_time: newAuctionStartingTime,
+          status: 'upcoming',
+          number: auctions[0].number + 1
+        })
+      }
+      else{
+        selectedAuction = auctions[0]
+      }
+    }
+
+    await selectedAuction.save()
+
     // Create the new item
     const newItem = await Item.create({
       sellerId: userId,
@@ -46,10 +83,19 @@ exports.uploaditems = async (req, res) => {
       image: imageUrl,
       starting_price: startingPrice,
       description: description,
+      auctionId: selectedAuction._id
     });
-    return res.status(201).json({ message: 'Item uploaded successfully', newItem });
+
+    await newItem.save()
+    selectedAuction.items.push({ id: newItem._id });
+
+    await selectedAuction.save()
+
+    const message = `Your item is successfully registered. It will be sold in auction ${selectedAuction.name} on ${formatDate(selectedAuction.starting_time)}`
+    
+    return res.status(201).json({ message: message, newItem });
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     return res.status(500).json({ error: error.message });
   }
 };

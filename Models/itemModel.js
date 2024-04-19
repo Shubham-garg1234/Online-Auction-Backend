@@ -24,6 +24,9 @@ const itemSchema = new Schema({
     },
     description: {
         type: String
+    },
+    auctionId: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'auction',
     }
 });
 

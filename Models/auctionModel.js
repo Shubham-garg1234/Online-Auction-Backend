@@ -13,9 +13,14 @@ const auctionSchema = new Schema({
         type: String,
         default: ''
     },
+    number: {
+        type: Number
+    },
     items: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'item',
-    }]
+        id: {
+            type: mongoose.Schema.Types.ObjectId, ref: 'item',
+        },
+    }],
 });
 
 

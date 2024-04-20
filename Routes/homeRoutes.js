@@ -9,6 +9,7 @@ router.post('/uploaditems', AuthenticateUser , homeController.uploaditems);
 router.post('/getUpcoming', AuthenticateUser , homeController.getUpcoming);
 router.post('/getItemsDetails',AuthenticateUser,homeController.getItemsDetails);
 router.post('/fetchBiddingItem',AuthenticateUser,homeController.fetchBiddingItem);
+router.post('/fetchNextBiddingItem',AuthenticateUser,homeController.fetchNextBiddingItem);
 router.post('/make_a_bid',AuthenticateUser,homeController.make_a_bid);
 
 module.exports = router;

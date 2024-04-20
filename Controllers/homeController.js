@@ -137,8 +137,6 @@ exports.fetchBiddingItem = async (req, res) => {
     const id = auction.items[currentBiddingIndex].id
     const currentBiddingItem = await Item.findById(id)
 
-    console.log(currentBiddingItem)
-
     const seller = await User.findById(currentBiddingItem.sellerId)
     const bidder = await User.findById(currentBiddingItem.bidderId)
     currentBiddingItem.sellerName = seller.name
@@ -169,6 +167,12 @@ exports.make_a_bid = async (req, res) => {
     const user = await User.findById(req.user.id)
     const userName = user.name
 
+    if(auction.status === 'completed'){
+      return res.status(400).json({success , error: "Auction is already completed"})
+    }
+    if(currentBiddingItem.status === 'sold'){
+      return res.status(400).json({success , error: "Item is already sold"})
+    }
 
     let currentBid = currentBiddingItem.current_bid;
     let startingPrice = currentBiddingItem.starting_price;
@@ -179,7 +183,11 @@ exports.make_a_bid = async (req, res) => {
         currentBid = currentBid + currentBid * 0.1;
     }
 
-    currentBid = parseFloat(currentBid.toFixed(2));
+    currentBid = Math.ceil(currentBid);
+
+    if(currentBid > user.coins){
+      return res.status(400).json({success , error: "Insufficient Balance!! Kindly Recharge"})
+    }
 
     currentBiddingItem.current_bid = currentBid;
     currentBiddingItem.bidderId = req.user.id;
@@ -188,6 +196,52 @@ exports.make_a_bid = async (req, res) => {
 
     success = true
     return res.status(200).json({ success , currentBid , userName })
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success , error: error.message });
+  }
+};
+
+
+
+exports.fetchNextBiddingItem = async (req, res) => {
+  let success = false;
+  try {
+
+    const { auctionId } = req.body;
+
+    const auction = await Auction.findById(auctionId)
+    let currentBiddingIndex = auction.currentBiddingItem
+    let id = auction.items[currentBiddingIndex].id
+    let currentBiddingItem = await Item.findById(id)
+
+    console.log(currentBiddingItem)
+
+    currentBiddingItem.status = 'unsold'
+    await currentBiddingItem.save();
+    auction.currentBiddingItem += 1;
+    await auction.save()
+    currentBiddingIndex = auction.currentBiddingItem
+
+    if(currentBiddingIndex === auction.items.length){
+      auction.status = 'completed'
+      await auction.save()
+      return res.status(200).json({success , message: "Auction Completed"})
+    }
+
+    id = auction.items[currentBiddingIndex].id
+    currentBiddingItem = await Item.findById(id)
+
+    const seller = await User.findById(currentBiddingItem.sellerId)
+    const bidder = await User.findById(currentBiddingItem.bidderId)
+    currentBiddingItem.sellerName = seller.name
+    currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
+
+    console.log(currentBiddingItem)
+
+    success = true
+    return res.status(200).json({ success , currentBiddingItem })
 
   } catch (error) {
     console.error(error);

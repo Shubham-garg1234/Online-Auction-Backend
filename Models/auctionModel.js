@@ -21,6 +21,10 @@ const auctionSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId, ref: 'item',
         },
     }],
+    currentBiddingItem: {
+        type: Number,
+        default: 0
+    }
 });
 
 

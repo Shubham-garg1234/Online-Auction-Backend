@@ -133,6 +133,7 @@ exports.fetchBiddingItem = async (req, res) => {
     const { auctionId } = req.body;
 
     const auction = await Auction.findById(auctionId)
+    console.log(auction);
     const currentBiddingIndex = auction.currentBiddingItem
     const id = auction.items[currentBiddingIndex].id
     const currentBiddingItem = await Item.findById(id)

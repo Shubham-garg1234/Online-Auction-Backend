@@ -13,9 +13,6 @@ const auctionSchema = new Schema({
         type: String,
         default: ''
     },
-    number: {
-        type: Number
-    },
     items: [{
         id: {
             type: mongoose.Schema.Types.ObjectId, ref: 'item',
@@ -24,6 +21,10 @@ const auctionSchema = new Schema({
     currentBiddingItem: {
         type: Number,
         default: 0
+    },
+    timer: {
+        type:Number,
+        default: 20
     }
 });
 

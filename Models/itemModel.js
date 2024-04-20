@@ -24,9 +24,10 @@ const itemSchema = new Schema({
     },
     current_bid: {
         type: Number,
+        default: 0
     },
     bidderId: {
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId, ref: 'user',
     },
     status: {
         type: String

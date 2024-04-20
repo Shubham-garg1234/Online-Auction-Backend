@@ -84,7 +84,7 @@ exports.uploaditems = async (req, res) => {
       image: url,
       starting_price: startingPrice,
       description: description,
-      auctionId: selectedAuction._id
+      auctionId: selectedAuction._id,
     });
     await newItem.save()
     selectedAuction.items.push({ id: newItem._id });
@@ -154,3 +154,43 @@ exports.fetchBiddingItem = async (req, res) => {
 };
 
 
+
+exports.make_a_bid = async (req, res) => {
+  let success = false;
+  try {
+
+    const { auctionId } = req.body;
+
+    const auction = await Auction.findById(auctionId)
+    const currentBiddingIndex = auction.currentBiddingItem
+    const id = auction.items[currentBiddingIndex].id
+    const currentBiddingItem = await Item.findById(id)
+
+    const user = await User.findById(req.user.id)
+    const userName = user.name
+
+
+    let currentBid = currentBiddingItem.current_bid;
+    let startingPrice = currentBiddingItem.starting_price;
+
+    if (currentBid === 0) {
+        currentBid = startingPrice + startingPrice * 0.1;
+    } else {
+        currentBid = currentBid + currentBid * 0.1;
+    }
+
+    currentBid = parseFloat(currentBid.toFixed(2));
+
+    currentBiddingItem.current_bid = currentBid;
+    currentBiddingItem.bidderId = req.user.id;
+    await currentBiddingItem.save();
+
+
+    success = true
+    return res.status(200).json({ success , currentBid , userName })
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success , error: error.message });
+  }
+};

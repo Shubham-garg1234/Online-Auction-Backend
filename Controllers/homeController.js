@@ -23,7 +23,8 @@ exports.getdetails = async (req, res) => {
 
 exports.uploaditems = async (req, res) => {
   try {
-    const { imageUrl, itemName, description, startingPrice } = req.body;
+    console.log(req.body);
+    const { url, itemName, description, startingPrice } = req.body;
     const userId = req.user.id;
 
     // Check if user exists and has enough coins
@@ -80,12 +81,11 @@ exports.uploaditems = async (req, res) => {
     const newItem = await Item.create({
       sellerId: userId,
       name: itemName,
-      image: imageUrl,
+      image: url,
       starting_price: startingPrice,
       description: description,
       auctionId: selectedAuction._id
     });
-
     await newItem.save()
     selectedAuction.items.push({ id: newItem._id });
 

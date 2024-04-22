@@ -64,16 +64,18 @@ exports.uploaditems = async (req, res) => {
       if(timerValue > 100000000)  timerValue = Math.floor((new Date(startingTime) - new Date()) / 1000);
     }
     else{
-      if(auctions[0].items.length === 3){
+      if(auctions[0].items.length === 2){
         const newAuctionName = 'Auction ' + (auctions[0].number + 1);
-        const newAuctionStartingTime = new Date(auctions[0].starting_time.getTime() + 6 * 60 * 60 * 1000);
+        let startingTime = new Date();
+        startingTime.setDate(startingTime.getDate() + 1);
+        startingTime.setHours(12, 0, 0, 0);
         selectedAuction = await Auction.create({
           name: newAuctionName,
-          starting_time: newAuctionStartingTime,
+          starting_time: startingTime,
           status: 'upcoming',
           number: auctions[0].number + 1,
         })
-        if(timerValue > 100000000)  timerValue = Math.floor((new Date(newAuctionStartingTime) - new Date()) / 1000);
+        if(timerValue > 100000000)  timerValue = Math.floor((new Date(startingTime) - new Date()) / 1000);
       }
       else{
         selectedAuction = auctions[0]
@@ -210,36 +212,36 @@ exports.make_a_bid = async (req, res) => {
 
 
 
-exports.fetchNextBiddingItem = async (req, res) => {
-  let success = false;
-  try {
+// exports.fetchNextBiddingItem = async (req, res) => {
+//   let success = false;
+//   try {
 
-    const { auctionId } = req.body;
+//     const { auctionId } = req.body;
 
-    const auction = await Auction.findById(auctionId)
-    let currentBiddingIndex = auction.currentBiddingItem + 1
+//     const auction = await Auction.findById(auctionId)
+//     let currentBiddingIndex = auction.currentBiddingItem + 1
   
-    auction.currentBiddingItem += 1;
-    await auction.save()
+//     auction.currentBiddingItem += 1;
+//     await auction.save()
 
-    if(currentBiddingIndex === auction.items.length){
-      return res.status(200).json({success , message: "Auction Completed"})
-    }
+//     if(currentBiddingIndex === auction.items.length){
+//       return res.status(200).json({success , message: "Auction Completed"})
+//     }
 
-    let id = auction.items[currentBiddingIndex].id
-    let currentBiddingItem = await Item.findById(id)
+//     let id = auction.items[currentBiddingIndex].id
+//     let currentBiddingItem = await Item.findById(id)
 
-    const seller = await User.findById(currentBiddingItem.sellerId)
-    const bidder = await User.findById(currentBiddingItem.bidderId)
-    currentBiddingItem.sellerName = seller.name
-    currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
+//     const seller = await User.findById(currentBiddingItem.sellerId)
+//     const bidder = await User.findById(currentBiddingItem.bidderId)
+//     currentBiddingItem.sellerName = seller.name
+//     currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
 
 
-    success = true
-    return res.status(200).json({ success , currentBiddingItem })
+//     success = true
+//     return res.status(200).json({ success , currentBiddingItem })
 
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ success , error: error.message });
-  }
-};
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ success , error: error.message });
+//   }
+// };

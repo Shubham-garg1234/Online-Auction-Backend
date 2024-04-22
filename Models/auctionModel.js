@@ -25,6 +25,9 @@ const auctionSchema = new Schema({
     timer: {
         type:Number,
         default: 20
+    },
+    number: {
+        type: Number
     }
 });
 

@@ -3,6 +3,8 @@ const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
 const Auction = require('../Models/auctionModel')
 const formatDate = require('../Utils/FormatDate')
+const index = require('../index')
+let { timerValue } = require('../Middlewares/Socket')
 
 exports.getdetails = async (req, res) => {
     try {
@@ -44,7 +46,7 @@ exports.uploaditems = async (req, res) => {
 
     let selectedAuction = null;
 
-    const auctions = await Auction.find().sort({ starting_time: -1 })
+    const auctions = await Auction.find({status: 'upcoming'}).sort({ starting_time: -1 })
 
     if(auctions.length == 0){
 
@@ -58,17 +60,20 @@ exports.uploaditems = async (req, res) => {
         status: 'upcoming',
         number: 1,
       })
+
+      if(timerValue > 100000000)  timerValue = Math.floor((new Date(startingTime) - new Date()) / 1000);
     }
     else{
-      if(auctions[0].items.length === 15){
+      if(auctions[0].items.length === 3){
         const newAuctionName = 'Auction ' + (auctions[0].number + 1);
-        const newAuctionStartingTime = new Date(auctions[0].starting_time.getTime() + 60 * 60 * 1000);
+        const newAuctionStartingTime = new Date(auctions[0].starting_time.getTime() + 6 * 60 * 60 * 1000);
         selectedAuction = await Auction.create({
           name: newAuctionName,
           starting_time: newAuctionStartingTime,
           status: 'upcoming',
           number: auctions[0].number + 1,
         })
+        if(timerValue > 100000000)  timerValue = Math.floor((new Date(newAuctionStartingTime) - new Date()) / 1000);
       }
       else{
         selectedAuction = auctions[0]
@@ -133,7 +138,6 @@ exports.fetchBiddingItem = async (req, res) => {
     const { auctionId } = req.body;
 
     const auction = await Auction.findById(auctionId)
-    console.log(auction);
     const currentBiddingIndex = auction.currentBiddingItem
     const id = auction.items[currentBiddingIndex].id
     const currentBiddingItem = await Item.findById(id)
@@ -213,33 +217,23 @@ exports.fetchNextBiddingItem = async (req, res) => {
     const { auctionId } = req.body;
 
     const auction = await Auction.findById(auctionId)
-    let currentBiddingIndex = auction.currentBiddingItem
-    let id = auction.items[currentBiddingIndex].id
-    let currentBiddingItem = await Item.findById(id)
-
-    console.log(currentBiddingItem)
-
-    currentBiddingItem.status = 'unsold'
-    await currentBiddingItem.save();
+    let currentBiddingIndex = auction.currentBiddingItem + 1
+  
     auction.currentBiddingItem += 1;
     await auction.save()
-    currentBiddingIndex = auction.currentBiddingItem
 
     if(currentBiddingIndex === auction.items.length){
-      auction.status = 'completed'
-      await auction.save()
       return res.status(200).json({success , message: "Auction Completed"})
     }
 
-    id = auction.items[currentBiddingIndex].id
-    currentBiddingItem = await Item.findById(id)
+    let id = auction.items[currentBiddingIndex].id
+    let currentBiddingItem = await Item.findById(id)
 
     const seller = await User.findById(currentBiddingItem.sellerId)
     const bidder = await User.findById(currentBiddingItem.bidderId)
     currentBiddingItem.sellerName = seller.name
     currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
 
-    console.log(currentBiddingItem)
 
     success = true
     return res.status(200).json({ success , currentBiddingItem })

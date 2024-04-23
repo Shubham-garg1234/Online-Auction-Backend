@@ -30,7 +30,8 @@ const itemSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'user',
     },
     status: {
-        type: String
+        type: String,
+        default: 'unsold'
     },
     description: {
         type: String

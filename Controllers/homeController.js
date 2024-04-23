@@ -198,6 +198,7 @@ exports.make_a_bid = async (req, res) => {
 
     currentBiddingItem.current_bid = currentBid;
     currentBiddingItem.bidderId = req.user.id;
+    currentBiddingItem.status = 'sold'
     await currentBiddingItem.save();
 
 

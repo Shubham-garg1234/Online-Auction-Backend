@@ -24,6 +24,7 @@ app.use('/api/auth' , require('./Routes/otpRoutes'));
 app.use('/api/auth' , require('./Routes/resetRoutes'));
 app.use('/api/auth',require('./Routes/homeRoutes'))
 app.use('/api/auth',require('./Routes/notificationRoutes'))
+app.use('/',require('./Routes/PaymentGateway'))
 
 
 //Starting a server at port 3001

@@ -211,6 +211,21 @@ exports.make_a_bid = async (req, res) => {
   }
 };
 
+exports.AddCoins = async (req, res) => {
+  const userId = req.user.id;
+  const coins = req.body.coins;
+  try {
+      const updatedUser = await User.findByIdAndUpdate(userId, { coins: coins }, { new: true });
+      if (updatedUser) {
+          return res.status(200).json(updatedUser);
+      } else {
+          return res.status(404).json({ error: 'User not found' });
+      }
+  } catch (error) {
+      console.error('Error updating user coins:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 
 // exports.fetchNextBiddingItem = async (req, res) => {

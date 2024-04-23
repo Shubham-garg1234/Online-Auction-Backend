@@ -114,7 +114,7 @@ timerInterval = setInterval(() => {
           status="upcoming";
           markAuctionAsCompleted(auctionid);
         }
-        console.log(message);
+        // console.log(message);
         io.emit('fetchNext', message);
         timerValue = 60;
       }).catch(error => {
@@ -134,7 +134,7 @@ timerInterval = setInterval(() => {
       timerValue = 20;
     }
   }  
-console.log(timerValue)
+// console.log(timerValue)
 }, 1000);
 
 

@@ -8,10 +8,6 @@ const notificationSchema = new Schema({
         ref: 'user',
         required: true
     },
-    name: {
-        type: String,
-        required: true
-    },
     date: {
         type: Date,
         default: Date.now,

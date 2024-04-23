@@ -5,6 +5,7 @@ const express = require('express')
 const Auction = require('../Models/auctionModel')
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
+const Notification = require('../Models/notificationModel')
 
 const server = http.createServer(express());
 const io = socketIO(server, {
@@ -40,8 +41,28 @@ const fetchNextBiddingItem = async () => {
   let success = false;
   try {
 
-
     const auction = await Auction.findById(auctionid)
+    let id = auction.items[auction.currentBiddingItem].id
+    const item = await Item.findById(id)
+
+    let notifi;
+
+    if(item.status === 'sold'){
+      notifi = `Congratulations!! ${item.name} is sold in the ${auction.name} to ${item.bidderName} at price ${currentbid}`;
+    }
+    else {
+      notifi = `Your item is not sold in the auction ${auction.name}. Your security money will be refunded soon.`
+    }
+
+    const notification = await Notification.create({
+        user: item.sellerId,
+        message: notifi,
+    })
+
+    console.log(notification)
+    await notification.save()
+    
+
     let currentBiddingIndex = auction.currentBiddingItem + 1
     auction.currentBiddingItem += 1;
     await auction.save()
@@ -51,10 +72,10 @@ const fetchNextBiddingItem = async () => {
     if(currentBiddingIndex === auction.items.length){
       success=true;
 
-      return ({success , currentBiddingItem})
+      return ({success , currentBiddingItem })
     }
 
-    let id = auction.items[currentBiddingIndex].id
+    id = auction.items[currentBiddingIndex].id
     currentBiddingItem = await Item.findById(id)
 
     const seller = await User.findById(currentBiddingItem.sellerId)
@@ -134,7 +155,7 @@ timerInterval = setInterval(() => {
       timerValue = 20;
     }
   }  
-console.log(timerValue)
+//console.log(timerValue)
 }, 1000);
 
 

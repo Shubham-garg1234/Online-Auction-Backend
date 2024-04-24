@@ -1,42 +1,46 @@
+require("dotenv").config();
 
-require("dotenv").config()
+// Importing jwt
+const jwt = require('jsonwebtoken');
 
-//importing jwt
-const jwt = require('jsonwebtoken')
-
-//making a JWT_Secret as a signature
+// Making JWT_SECRET as a signature
 const JWT_SECRET = process.env.JWT_SECRET;
+let blacklist = new Set();
 
-//creating a middleware function which is designed to perform some function
-const fetchuser = (req , res , next) => {
-    let success = false
+// Middleware function to fetch user data
+const fetchuser = (req, res, next) => {
+    let success = false;
 
-    //storing token present in the auth-token header in thunderclient
-    const token = req.header('auth-token')
+    blacklist = new Set([...blacklist].filter(token => jwt.decode(token) !== null));
 
-    //if token is not present
-    if(!token){
-        res.status(401).send({success , error: "Try to use with the correct authentication token"})
+    const token = req.header('auth-token');
+
+    if (!token) {
+        return res.status(401).send({ success, error: "Please provide a valid authentication token" });
     }
 
-    //getting the userdata with the try catch block
-    try{
-        //verify the token with the JWT_Secret and store the data
-        const data = jwt.verify(token , JWT_SECRET)
+    try {
+        if (req.body.message === 'logout') {
+            const token = req.header('auth-token');
+            if (token) {
+                blacklist.add(token);
+            }
+        }
 
-        //storing the user data in req.user
-        req.user = data.user
-        success = true
-        //Calling the function next to middleware
-        next()
-    }
-    
-    //Error Handling
-    catch(err) {
-        res.status(401).send({success , error: "Try to use with the correct authentication token"})
-    }
+        if (blacklist.has(token)) {
+            return res.status(401).json({ error: 'Token revoked' });
+        }
 
-}
+        const data = jwt.verify(token, JWT_SECRET);
+
+        req.user = data.user;
+        success = true;
+        next();
+    } catch (err) {
+        console.error("Authentication error:", err);
+        res.status(401).send({ success, error: "Invalid authentication token" });
+    }
+};
 
 //exporting the module fetchuser function
 module.exports = fetchuser

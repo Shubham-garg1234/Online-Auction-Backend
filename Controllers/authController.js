@@ -1,5 +1,3 @@
-
-
 require("dotenv").config()
 
 //importing bcrypt
@@ -154,4 +152,3 @@ exports.getUser = async (req, res) => {
       return res.status(500).json({success ,  error: error.message });
     }
 };
-

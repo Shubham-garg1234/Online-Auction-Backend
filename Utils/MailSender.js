@@ -13,12 +13,12 @@ const mailSender = async (email, title, body) => {
       port: 507,
       secure: false,
       auth: {
-        user: "test8619030@gmail.com",
-        pass: "avbh hzyk odpa ouxk"
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS
       }
     });
     // Send emails to users
-    let info = await transporter.sendMail({
+    let info = transporter.sendMail({
       from: {
         name: "FirstBid",
         address: process.env.MAIL_USER

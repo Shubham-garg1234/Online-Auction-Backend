@@ -12,8 +12,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../Models/userModel')
 const OTP = require('../Models/otpModel');
 
-//creating a JWT_Secret string as a signature for user authentication
-const JWT_Secret = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET
 
 
 exports.signup = async (req, res) => {
@@ -58,7 +57,7 @@ exports.signup = async (req, res) => {
         }
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
+        var authToken = jwt.sign(data, JWT_SECRET ,{ expiresIn: '10h' })
 
         const userId = user.id
 
@@ -112,7 +111,7 @@ exports.login = async (req , res) => {
         const userId = user.id
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
+        var authToken = jwt.sign(data, JWT_SECRET ,{ expiresIn: '10h' })
 
         console.log(authToken);
         //giving back response

@@ -1,6 +1,5 @@
 const User = require('../Models/userModel')
-const dotenv=require('dotenv')
-dotenv.config({path:'./config.env'})
+require('dotenv').config()
 const Razorpay = require("razorpay");
 const cors = require("cors");
 const crypto = require("crypto");

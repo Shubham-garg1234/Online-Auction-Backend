@@ -5,7 +5,7 @@ require("dotenv").config()
 const jwt = require('jsonwebtoken')
 
 //making a JWT_Secret as a signature
-// const JWT_Secret = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 //creating a middleware function which is designed to perform some function
 const fetchuser = (req , res , next) => {
@@ -22,7 +22,7 @@ const fetchuser = (req , res , next) => {
     //getting the userdata with the try catch block
     try{
         //verify the token with the JWT_Secret and store the data
-        const data = jwt.verify(token , "jsbgskb")
+        const data = jwt.verify(token , JWT_SECRET)
 
         //storing the user data in req.user
         req.user = data.user

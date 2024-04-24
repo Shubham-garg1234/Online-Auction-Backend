@@ -6,8 +6,8 @@ const transactionSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'user',
     },
     bidderId: {
-        type: String,
-        default: '',
+        type: mongoose.Schema.Types.ObjectId, ref: 'user',
+        default: null,
     },
     amount: {
         type: String,
@@ -16,6 +16,9 @@ const transactionSchema = new Schema({
     date: {
         type: Date,
         default: Date.now
+    },
+    itemName: {
+        type: String
     }
 });
 

@@ -3,9 +3,10 @@ require('dotenv').config()
 const Razorpay = require("razorpay");
 const cors = require("cors");
 const crypto = require("crypto");
+const Transaction = require('../Models/transactionModel')
 
 exports.order= async (req, res) => {
-    try {
+  try {
       const razorpay = new Razorpay({
         key_id: process.env.RAZORPAY_KEY_ID,
         key_secret: process.env.RAZORPAY_SECRET,
@@ -54,6 +55,14 @@ exports.order= async (req, res) => {
     }
     user.coins += addcoins;
     await user.save();
+    const transaction = await Transaction.create({
+      sellerId: req.user.id,
+      amount: addcoins,
+      itemName: 'Recharge'
+    })
+    console.log(transaction)
+    await transaction.save()
+
     return res.status(201).json({ message: "success" })
   }
     catch (error) {

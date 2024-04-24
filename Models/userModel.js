@@ -20,6 +20,10 @@ const userSchema = new Schema({
     },
     coins: {
         type: Number,
+        default: 20
+    },
+    googleId: {
+        type: String
     }
 });
 

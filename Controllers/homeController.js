@@ -2,6 +2,7 @@
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
 const Auction = require('../Models/auctionModel')
+const Notification = require('../Models/notificationModel')
 const formatDate = require('../Utils/FormatDate')
 const index = require('../index')
 let { timerValue } = require('../Middlewares/Socket')
@@ -98,7 +99,15 @@ exports.uploaditems = async (req, res) => {
 
     await selectedAuction.save()
 
-    const message = `Your item is successfully registered. It will be sold in auction ${selectedAuction.name} on ${formatDate(selectedAuction.starting_time)}`
+    const message = `${newItem.name} is successfully registered. It will be sold in ${selectedAuction.name} on ${formatDate(selectedAuction.starting_time)}`
+    const notification = await Notification.create({
+      user: req.user.id,
+      message: message,
+    })
+
+    console.log(notification)
+
+    await notification.save()
     
     return res.status(201).json({ message: message, newItem });
   } catch (error) {

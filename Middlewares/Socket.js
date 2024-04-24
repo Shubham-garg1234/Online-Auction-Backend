@@ -6,6 +6,7 @@ const Auction = require('../Models/auctionModel')
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
 const Notification = require('../Models/notificationModel')
+const Transaction = require('../Models/transactionModel')
 
 const server = http.createServer(express());
 const io = socketIO(server, {
@@ -49,9 +50,22 @@ const fetchNextBiddingItem = async () => {
 
     if(item.status === 'sold'){
       notifi = `Congratulations!! ${item.name} is sold in the ${auction.name} to ${item.bidderName} at price ${currentbid}`;
+      const seller = await User.findById(item.sellerId)
+      const bidder = await User.findById(item.bidderId)
+      seller.coins += item.current_bid
+      bidder.coins -= item.current_bid
+      await seller.save()
+      await bidder.save()
+      const transaction = await Transaction.create({
+        sellerId: item.sellerId,
+        bidderId: item.bidderId,
+        amount: item.current_bid,
+        itemName: item.name
+      })
+      await transaction.save()
     }
     else {
-      notifi = `Your item is not sold in the auction ${auction.name}. Your security money will be refunded soon.`
+      notifi = `${item.name} is not sold in the auction ${auction.name}. Your security money will be refunded soon.`
     }
 
     const notification = await Notification.create({

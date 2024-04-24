@@ -1,4 +1,6 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken')
+const JWT_SECRET = process.env.JWT_SECRET
 
 exports.reDirect = (req , res) => {
     let success = false;
@@ -14,7 +16,7 @@ exports.reDirect = (req , res) => {
         const userId = req.user.id
 
         //Generating a JWT token
-        var authToken = jwt.sign(data, "jsbgskb",{ expiresIn: '10h' })
+        var authToken = jwt.sign(data, JWT_SECRET,{ expiresIn: '10h' })
 
         res.redirect(`http://localhost:1234/Home?token=${authToken}`)
 

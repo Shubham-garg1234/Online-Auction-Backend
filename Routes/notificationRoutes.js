@@ -14,10 +14,8 @@ const notificationController = require('../Controllers/notificationController');
 
 //Routes
 router.get('/fetchNotifications' , authenticateUser , notificationController.fetchNotifications);
-router.post('/addNotification' , authenticateUser , notificationController.addNotification)
-router.post('/addNotificationSelf' , authenticateUser , notificationController.addNotificationSelf)
-router.get('/removeNewNotifi' , authenticateUser , notificationController.removeNewNotifi)
-router.get('/checkNotifications' , authenticateUser , notificationController.checkNotifications)
+router.post('/addNotification' , authenticateUser , notificationController.addNotification);
+router.get('/fetchTransactions' , authenticateUser , notificationController.fetchTransactions);
 
 //exporting router
 module.exports = router

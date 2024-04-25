@@ -3,7 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 const session = require("express-session")
-require("../MiddleWares/Passport")
+require("../Middlewares/Passport")
 const googleController = require('../Controllers/googleController')
 
 

@@ -25,10 +25,10 @@ async function markAuctionAsCompleted(auctionId) {
           { new: true }
       );
       if (updatedAuction) {
-          console.log('Auction status updated successfully.');
+          //console.log('Auction status updated successfully.');
           return updatedAuction;
       } else {
-          console.log('Auction not found.');
+          //console.log('Auction not found.');
           return null;
       }
   } catch (error) {
@@ -45,10 +45,9 @@ const fetchNextBiddingItem = async () => {
     const auction = await Auction.findById(auctionid)
     let id = auction.items[auction.currentBiddingItem].id
     const item = await Item.findById(id)
-
+    //console.log(item);
     let notifi;
-
-    if(item.status === 'sold'){
+    if(item.status == 'sold'){
       notifi = `Congratulations!! ${item.name} is sold in the ${auction.name} to ${item.bidderName} at price ${currentbid}`;
       const seller = await User.findById(item.sellerId)
       const bidder = await User.findById(item.bidderId)
@@ -64,7 +63,7 @@ const fetchNextBiddingItem = async () => {
       })
       await transaction.save()
     }
-    else {
+    else if(item.status == 'unsold') {
       notifi = `${item.name} is not sold in the auction ${auction.name}. Your security money will be refunded soon.`
     }
 
@@ -72,8 +71,6 @@ const fetchNextBiddingItem = async () => {
         user: item.sellerId,
         message: notifi,
     })
-
-    console.log(notification)
     await notification.save()
     
 
@@ -83,7 +80,7 @@ const fetchNextBiddingItem = async () => {
     let success
     let currentBiddingItem
     currentBiddingItem="Auction Completed"
-    if(currentBiddingIndex === auction.items.length){
+    if(currentBiddingIndex == auction.items.length){
       success=true;
 
       return ({success , currentBiddingItem })
@@ -99,6 +96,7 @@ const fetchNextBiddingItem = async () => {
 
 
     success = true
+    //console.log(currentBiddingItem);
     return ({ success , currentBiddingItem })
 
   } catch (error) {
@@ -128,6 +126,7 @@ let currentbid=0;
 let nextbid=0;
 
 timerInterval = setInterval(() => {
+  console.log(timerValue);
   timerValue-=1;
   if(timerValue!=0 && timerValue%10000==0){
     async function start2(){
@@ -140,16 +139,17 @@ timerInterval = setInterval(() => {
     }
     start2();
   }
-  if (timerValue <= 0) {
+  if (timerValue ==  0) {
     if (status == "live") {
       fetchNextBiddingItem().then(data => {
+        ////console.log(data);
         status = "hault";
         let message = { status, data };
         if(data.currentBiddingItem=="Auction Completed"){
           status="upcoming";
           markAuctionAsCompleted(auctionid);
         }
-        // console.log(message);
+         //console.log(message);
         io.emit('fetchNext', message);
         timerValue = 60;
       }).catch(error => {
@@ -169,7 +169,7 @@ timerInterval = setInterval(() => {
       timerValue = 20;
     }
   }  
-// console.log(timerValue)
+// //console.log(timerValue)
 }, 1000);
 
 
@@ -177,14 +177,14 @@ timerInterval = setInterval(() => {
 io.on('connection', (socket) => {
 
   socket.on("join", (token) => {
-    console.log('a user connected')
+    //console.log('a user connected')
     const details={timer:timerValue, bidamount:currentbid, nextbid:nextbid};
-    console.log(details)
+    //console.log(details)
     io.to(socket.id).emit('detail_to_all', details);
   });
 
   socket.on('detail_to_server', (message) => {
-    console.log(message);
+    //console.log(message);
     timerValue=message.timer;
     currentbid=message.bidamount
     nextbid=message.nextbid
@@ -207,7 +207,7 @@ io.on('connection', (socket) => {
 
 
 server.listen(3001, () => {
-  console.log(`Server listening on http://localhost:3003`);
+  //console.log(`Server listening on http://localhost:3003`);
 });
 
 

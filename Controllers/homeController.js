@@ -183,12 +183,12 @@ exports.make_a_bid = async (req, res) => {
     const user = await User.findById(req.user.id)
     const userName = user.name
 
-    if(auction.status === 'completed'){
-      return res.status(400).json({success , error: "Auction is already completed"})
-    }
-    if(currentBiddingItem.status === 'sold'){
-      return res.status(400).json({success , error: "Item is already sold"})
-    }
+    // if(auction.status === 'completed'){
+    //   return res.status(400).json({success , error: "Auction is already completed"})
+    // }
+    // if(currentBiddingItem.status === 'sold'){
+    //   return res.status(400).json({success , error: "Item is already sold"})
+    // }
 
     let currentBid = currentBiddingItem.current_bid;
     let startingPrice = currentBiddingItem.starting_price;

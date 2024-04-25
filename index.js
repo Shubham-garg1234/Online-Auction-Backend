@@ -11,9 +11,6 @@ const port = 3000
 const {server , app}=require('./Middlewares/Socket')
 
 //Using an express middleware to enable req.body
-app.use(express.json());
-app.use(cors())
-
 
 
 //Available routes whose api can be hit
@@ -25,8 +22,10 @@ app.use('/api/auth',require('./Routes/notificationRoutes'))
 app.use('/auth',require('./Routes/googleRoutes'))
 app.use('/',require('./Routes/PaymentGateway'))
 
+app.get("/", function (req, res) {
+  res.send("Server is running");
+});
 
-//Starting a server at port 3001
 server.listen(port, () => {
   console.log(`Server listening on http://localhost:3000`)
 })

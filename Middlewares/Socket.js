@@ -2,14 +2,18 @@
 const http = require('http');
 const socketIO = require('socket.io');
 const express = require('express')
+const cors = require("cors");
 const Auction = require('../Models/auctionModel')
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
-const app = express()
+const app = express();
+app.use(express.json());
+app.use(cors())
 const Notification = require('../Models/notificationModel')
 const Transaction = require('../Models/transactionModel')
 
-const server = http.createServer(express());
+const server = http.createServer(app);
+
 const io = socketIO(server, {
   cors: {
     origin: '*',

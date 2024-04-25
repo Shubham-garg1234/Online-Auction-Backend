@@ -48,12 +48,12 @@ const fetchNextBiddingItem = async () => {
 
     let notifi;
 
-    if(item.status === 'sold'){
+    if(item.status == 'sold'){
       notifi = `Congratulations!! ${item.name} is sold in the ${auction.name} to ${item.bidderName} at price ${currentbid}`;
       const seller = await User.findById(item.sellerId)
       const bidder = await User.findById(item.bidderId)
       seller.coins += item.current_bid
-      bidder.coins -= item.current_bid
+      bidder.coins -= (item.current_bid + 0.1 * item.current_bid)
       await seller.save()
       await bidder.save()
       const transaction = await Transaction.create({
@@ -66,6 +66,15 @@ const fetchNextBiddingItem = async () => {
     }
     else {
       notifi = `${item.name} is not sold in the auction ${auction.name}. Your security money will be refunded soon.`
+      const seller = await User.findById(item.sellerId)
+      seller.coins += item.starting_price * 0.1;
+      await seller.save()
+      const transaction = await Transaction.create({
+        sellerId: item.sellerId,
+        amount: item.starting_price * 0.1,
+        itemName: item.name
+      })
+      await transaction.save()
     }
 
     const notification = await Notification.create({
@@ -83,7 +92,7 @@ const fetchNextBiddingItem = async () => {
     let success
     let currentBiddingItem
     currentBiddingItem="Auction Completed"
-    if(currentBiddingIndex === auction.items.length){
+    if(currentBiddingIndex == auction.items.length){
       success=true;
 
       return ({success , currentBiddingItem })
@@ -109,6 +118,16 @@ const fetchNextBiddingItem = async () => {
 };
 
 async function start(){
+  const auctionsToUpdate = await Auction.find({
+    starting_time: { $lt: Date.now() },
+    status: { $ne: 'completed' }
+  });
+
+  for (const auction of auctionsToUpdate) {
+    auction.status = 'completed';
+    await auction.save();
+  }
+  
   auction = await Auction.find({ 
     starting_time: { $gt: Date.now() },
     status: { $ne: 'completed' } 
@@ -136,11 +155,11 @@ timerInterval = setInterval(() => {
         else {
           auctionid=auction[0]._id;
           timerValue = Math.floor((new Date(auction[0].starting_time) - new Date()) / 1000);
-      }
+        }
     }
     start2();
   }
-  if (timerValue <= 0) {
+  if (timerValue == 0) {
     if (status == "live") {
       fetchNextBiddingItem().then(data => {
         status = "hault";
@@ -169,7 +188,7 @@ timerInterval = setInterval(() => {
       timerValue = 20;
     }
   }  
-// console.log(timerValue)
+console.log(timerValue)
 }, 1000);
 
 

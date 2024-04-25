@@ -183,12 +183,6 @@ exports.make_a_bid = async (req, res) => {
     const user = await User.findById(req.user.id)
     const userName = user.name
 
-    if(auction.status === 'completed'){
-      return res.status(400).json({success , error: "Auction is already completed"})
-    }
-    if(currentBiddingItem.status === 'sold'){
-      return res.status(400).json({success , error: "Item is already sold"})
-    }
 
     let currentBid = currentBiddingItem.current_bid;
     let startingPrice = currentBiddingItem.starting_price;
@@ -237,36 +231,3 @@ exports.AddCoins = async (req, res) => {
 }
 
 
-// exports.fetchNextBiddingItem = async (req, res) => {
-//   let success = false;
-//   try {
-
-//     const { auctionId } = req.body;
-
-//     const auction = await Auction.findById(auctionId)
-//     let currentBiddingIndex = auction.currentBiddingItem + 1
-  
-//     auction.currentBiddingItem += 1;
-//     await auction.save()
-
-//     if(currentBiddingIndex === auction.items.length){
-//       return res.status(200).json({success , message: "Auction Completed"})
-//     }
-
-//     let id = auction.items[currentBiddingIndex].id
-//     let currentBiddingItem = await Item.findById(id)
-
-//     const seller = await User.findById(currentBiddingItem.sellerId)
-//     const bidder = await User.findById(currentBiddingItem.bidderId)
-//     currentBiddingItem.sellerName = seller.name
-//     currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
-
-
-//     success = true
-//     return res.status(200).json({ success , currentBiddingItem })
-
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ success , error: error.message });
-//   }
-// };

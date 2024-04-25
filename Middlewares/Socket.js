@@ -5,6 +5,7 @@ const express = require('express')
 const Auction = require('../Models/auctionModel')
 const User = require('../Models/userModel')
 const Item=require('../Models/itemModel')
+const app = express()
 const Notification = require('../Models/notificationModel')
 const Transaction = require('../Models/transactionModel')
 
@@ -225,10 +226,5 @@ io.on('connection', (socket) => {
 });
 
 
-server.listen(3001, () => {
-  //console.log(`Server listening on http://localhost:3003`);
-});
-
-
-module.exports = { timerValue }
+module.exports = { timerValue,app ,server}
 

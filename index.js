@@ -7,10 +7,8 @@ connectToMongo();
 //cors are used to hit the Apis from the frontend
 var cors = require("cors")
 const express = require('express')
-const port = 3003
-require('./Middlewares/Socket')
-
-const app = express()
+const port = 3000
+const {server , app}=require('./Middlewares/Socket')
 
 //Using an express middleware to enable req.body
 app.use(express.json());
@@ -29,7 +27,7 @@ app.use('/',require('./Routes/PaymentGateway'))
 
 
 //Starting a server at port 3001
-app.listen(port, () => {
-  console.log(`Server listening on http://localhost:3003`)
+server.listen(port, () => {
+  console.log(`Server listening on http://localhost:3000`)
 })
 

@@ -237,36 +237,3 @@ exports.AddCoins = async (req, res) => {
 }
 
 
-// exports.fetchNextBiddingItem = async (req, res) => {
-//   let success = false;
-//   try {
-
-//     const { auctionId } = req.body;
-
-//     const auction = await Auction.findById(auctionId)
-//     let currentBiddingIndex = auction.currentBiddingItem + 1
-  
-//     auction.currentBiddingItem += 1;
-//     await auction.save()
-
-//     if(currentBiddingIndex === auction.items.length){
-//       return res.status(200).json({success , message: "Auction Completed"})
-//     }
-
-//     let id = auction.items[currentBiddingIndex].id
-//     let currentBiddingItem = await Item.findById(id)
-
-//     const seller = await User.findById(currentBiddingItem.sellerId)
-//     const bidder = await User.findById(currentBiddingItem.bidderId)
-//     currentBiddingItem.sellerName = seller.name
-//     currentBiddingItem.bidderName = bidder !== null ? bidder.name : 'No Bidder Yet'
-
-
-//     success = true
-//     return res.status(200).json({ success , currentBiddingItem })
-
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ success , error: error.message });
-//   }
-// };

@@ -38,6 +38,7 @@ const fetchuser = (req, res, next) => {
         next();
     } catch (err) {
         console.error("Authentication error:", err);
+        res.redirect('http://localhost:1234/')
         res.status(401).send({ success, error: "Invalid authentication token" });
     }
 };

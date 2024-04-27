@@ -150,7 +150,7 @@ let currentbid=0;
 let nextbid=0;
 
 timerInterval = setInterval(() => {
-  //console.log(timerValue);
+  console.log(timerValue);
   timerValue-=1;
   if(timerValue!=0 && timerValue%10000==0){
     async function start2(){
